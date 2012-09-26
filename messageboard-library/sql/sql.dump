@@ -1,0 +1,182 @@
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: authorities; Type: TABLE; Schema: public; Owner: alfresco; Tablespace:
+--
+
+CREATE TABLE authorities (
+    username character varying(10) NOT NULL,
+    authority character varying(10) NOT NULL
+);
+
+
+ALTER TABLE public.authorities OWNER TO alfresco;
+
+--
+-- Name: messages; Type: TABLE; Schema: public; Owner: alfresco; Tablespace:
+--
+
+CREATE TABLE messages (
+    id bigint NOT NULL,
+    author character varying(255),
+    title character varying(255),
+    body character varying(255),
+    tenant_id character varying(50) NOT NULL
+);
+
+
+ALTER TABLE public.messages OWNER TO alfresco;
+
+--
+-- Name: messages_id_seq; Type: SEQUENCE; Schema: public; Owner: alfresco
+--
+
+CREATE SEQUENCE messages_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.messages_id_seq OWNER TO alfresco;
+
+--
+-- Name: messages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: alfresco
+--
+
+ALTER SEQUENCE messages_id_seq OWNED BY messages.id;
+
+
+--
+-- Name: messages_id_seq; Type: SEQUENCE SET; Schema: public; Owner: alfresco
+--
+
+SELECT pg_catalog.setval('messages_id_seq', 5, true);
+
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: alfresco; Tablespace:
+--
+
+CREATE TABLE users (
+    username character varying(10) NOT NULL,
+    password character varying(32) NOT NULL,
+    enabled smallint,
+    tenant_id character varying(50) DEFAULT 'sjsu.com'::character varying NOT NULL
+);
+
+
+ALTER TABLE public.users OWNER TO alfresco;
+    
+    
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: alfresco
+--
+
+ALTER TABLE ONLY messages ALTER COLUMN id SET DEFAULT nextval('messages_id_seq'::regclass);
+
+
+--
+-- Data for Name: authorities; Type: TABLE DATA; Schema: public; Owner: alfresco
+--
+
+COPY authorities (username, authority) FROM stdin;
+Admin   ROLE_ADMIN
+Admin   ROLE_USER
+user1   ROLE_USER
+user2   ROLE_USER
+jacky   ROLE_USER
+ben     ROLE_USER
+mike    ROLE_USER
+dan     ROLE_USER
+jacky   ROLE_ADMIN
+mike    ROLE_ADMIN
+\.
+
+
+--
+-- Data for Name: messages; Type: TABLE DATA; Schema: public; Owner: alfresco
+--
+
+COPY messages (id, author, title, body, tenant_id) FROM stdin;
+1       jacky   one     oneb    sjsu.com
+2       jacky   hello   h       sjsu.com
+3       ben     wow     w       sjsu.com
+4       mike    m       mb      bham.com
+5       dan     cool    cool1   bham.com
+\.
+
+
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: alfresco
+--
+
+COPY users (username, password, enabled, tenant_id) FROM stdin;
+Admin   Secret  1       sjsu.com
+user1   1111    1       sjsu.com
+user2   2222    0       sjsu.com
+jacky   j123    1       sjsu.com
+ben     b123    1       sjsu.com
+    
+
+
+--
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: alfresco; Tablespace:
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (username);
+
+
+--
+-- Name: authorities_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: alfresco
+--
+
+ALTER TABLE ONLY authorities
+    ADD CONSTRAINT authorities_username_fkey FOREIGN KEY (username) REFERENCES users(username);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+    
