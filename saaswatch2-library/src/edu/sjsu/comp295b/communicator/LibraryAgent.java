@@ -1,6 +1,7 @@
 package edu.sjsu.comp295b.communicator;
 
-import javax.management.MBeanNotificationInfo;
+import java.util.Properties;
+
 import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
 
@@ -57,5 +58,13 @@ public class LibraryAgent extends NotificationBroadcasterSupport
 	public void setKeepAliveInterval(int keepAliveInterval) {
 		
 		library.setKeepAliveInterval(keepAliveInterval);
+	}
+
+	@Override
+	public void saveConfig(Properties newConfig) {
+		// TODO Auto-generated method stub
+		// TODO
+		logger.debug("saveConfig");
+		library.saveConfig(newConfig);
 	}
 }

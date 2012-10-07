@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
@@ -24,12 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.sjsu.comp295b.communicator.LibraryAgentMBeanServer;
-import edu.sjsu.comp295b.helper.Config;
-import edu.sjsu.comp295b.helper.IConfigListener;
+import edu.sjsu.comp295b.config.LibraryConfig;
+import edu.sjsu.comp295b.config.ILibraryConfigListener;
 import edu.sjsu.comp295b.job.KeepAliveJob;
 import edu.sjsu.comp295b.logger.DebugLogger;
 
-public class Library implements IConfigListener {
+public class Library implements ILibraryConfigListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(Library.class);
 
@@ -37,14 +38,15 @@ public class Library implements IConfigListener {
 	private final String KEEP_ALIVE_TRIGGER = "keepAliveTrigger";
 
 	private static Library instance;
-	private Config config;
+	private LibraryConfig libraryConfig;
 	private List<ILibraryListener> listeners = new ArrayList<ILibraryListener>();
 	private Scheduler scheduler;
 
 	private Library() {
 
 		try {
-			config = new Config();
+			
+			libraryConfig = new LibraryConfig();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -52,9 +54,10 @@ public class Library implements IConfigListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		config.addListener(this);
+		libraryConfig.setListener(this);
 
 		try {
+			
 			LibraryAgentMBeanServer mbs = new LibraryAgentMBeanServer(this);
 		} catch (InstanceAlreadyExistsException e) {
 			// TODO Auto-generated catch block
@@ -74,7 +77,7 @@ public class Library implements IConfigListener {
 		}
 	}
 
-	public static Library getInstance() {
+	 synchronized public static Library getInstance() {
 
 		if (instance == null) {
 
@@ -83,7 +86,7 @@ public class Library implements IConfigListener {
 			try {
 				instance.scheduleKeepAliveJob();
 			} catch (SchedulerException e) {
-				// TODO Auto-generated catch block
+
 				e.printStackTrace();
 			}
 		}
@@ -95,17 +98,17 @@ public class Library implements IConfigListener {
 
 		logger.debug("isEnabled:" + isDebugEnabled);
 
-		config.setDebugEnabled(isDebugEnabled);
+		libraryConfig.setDebugEnabled(isDebugEnabled);
 	}
 
 	public void setKeepAliveInterval(int keepAliveInterval) {
 
-		config.setKeepAliveInterval(keepAliveInterval);
+		libraryConfig.setKeepAliveInterval(keepAliveInterval);
 	}
 
 	public void debug(String debugString) {
 
-		if (config.isDebugEnabled()) {
+		if (libraryConfig.isDebugEnabled()) {
 
 			broadcast("onDebug", debugString);
 		}
@@ -127,7 +130,7 @@ public class Library implements IConfigListener {
 						SimpleScheduleBuilder
 								.simpleSchedule()
 								.withIntervalInSeconds(
-										config.getKeepAliveInterval())
+										libraryConfig.getKeepAliveInterval())
 								.repeatForever()).build();
 
 		scheduler.scheduleJob(job, trigger);
@@ -188,7 +191,7 @@ public class Library implements IConfigListener {
 			Trigger newTrigger = oldTriggerBuilder
 				.startNow()
 				.withSchedule(SimpleScheduleBuilder.simpleSchedule()
-				    .withIntervalInSeconds(config.getKeepAliveInterval())
+				    .withIntervalInSeconds(libraryConfig.getKeepAliveInterval())
 				    .repeatForever())
 				    .build();
 
@@ -200,6 +203,12 @@ public class Library implements IConfigListener {
 		}
 		
 	}
+	
+	public void saveConfig(Properties newConfig) {
+		
+		libraryConfig.saveConfig(newConfig);
+	}
+	
 	/**
 	 * @param args
 	 * @throws NullPointerException
