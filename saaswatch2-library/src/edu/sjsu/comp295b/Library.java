@@ -13,7 +13,6 @@ import javax.management.NotCompliantMBeanException;
 
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
-import org.quartz.ScheduleBuilder;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleScheduleBuilder;
@@ -48,11 +47,11 @@ public class Library implements ILibraryConfigListener {
 			
 			libraryConfig = new LibraryConfig();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			logger.debug("constructor", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			logger.debug("constructor", e);
 		}
 		libraryConfig.setListener(this);
 
@@ -60,20 +59,20 @@ public class Library implements ILibraryConfigListener {
 			
 			LibraryAgentMBeanServer mbs = new LibraryAgentMBeanServer(this);
 		} catch (InstanceAlreadyExistsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			logger.debug("constructor", e);
 		} catch (MBeanRegistrationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			logger.debug("constructor", e);
 		} catch (NotCompliantMBeanException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			logger.debug("constructor", e);
 		} catch (MalformedObjectNameException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			logger.debug("constructor", e);
 		} catch (NullPointerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			logger.debug("constructor", e);
 		}
 	}
 

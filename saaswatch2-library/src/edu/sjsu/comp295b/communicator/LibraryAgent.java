@@ -62,8 +62,7 @@ public class LibraryAgent extends NotificationBroadcasterSupport
 
 	@Override
 	public void saveConfig(Properties newConfig) {
-		// TODO Auto-generated method stub
-		// TODO
+
 		logger.debug("saveConfig");
 		library.saveConfig(newConfig);
 	}
