@@ -7,4 +7,6 @@ public class OSDTO {
      public String name;
      public double systemLoadAverage; 
      public double version;
+     
+     public long timestamp;
 }

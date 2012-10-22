@@ -1,5 +1,7 @@
 package edu.sjsu.comp295b.config;
 
+import java.util.Properties;
+
 public interface IAgentConfigListener {
 
 	// application probing
@@ -14,6 +16,7 @@ public interface IAgentConfigListener {
 	public void onAgentResourceProbingIntervalChanged(int newInterval);
 	public void onAgentConnectivityProbingIntervalChanged(int newInterval);
 	public void onAgentStatusProbingIntervalChanged(int newInterval);
+	public void onAgentSaveConfig(Properties newConfig);
 	
 	// rest
 	public void onAgentRESTEnabledChanged(boolean isEnabled);

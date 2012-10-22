@@ -10,4 +10,6 @@ public class MemoryDTO {
 	public long nonHeapInit;
 	public long nonHeapMax;
 	public long nonHeapUsed;
+	
+	public long timestamp;
 }

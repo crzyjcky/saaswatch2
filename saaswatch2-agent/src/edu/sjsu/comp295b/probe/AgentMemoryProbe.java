@@ -23,10 +23,6 @@ public class AgentMemoryProbe {
 	
 	MemoryMXBean mxBean = ManagementFactory.getMemoryMXBean();
 	
-	public AgentMemoryProbe() {
-
-	}
-
 	public MemoryDTO probe() {
 
 		MemoryUsage heapMemoryUsage = mxBean.getHeapMemoryUsage();
@@ -42,6 +38,8 @@ public class AgentMemoryProbe {
 		memoryDTO.nonHeapInit = nonHeapMemoryUsage.getInit();
 		memoryDTO.nonHeapMax = nonHeapMemoryUsage.getMax();
 		memoryDTO.nonHeapUsed = nonHeapMemoryUsage.getUsed();
+		
+		memoryDTO.timestamp = System.currentTimeMillis();
 		
 		return memoryDTO;
 	}

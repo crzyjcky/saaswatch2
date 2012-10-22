@@ -4,13 +4,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
-import java.net.MalformedURLException;
-
 import javax.management.MBeanServerConnection;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,13 +15,10 @@ public class ApplicationMemoryProbe {
 	private static final Logger logger = LoggerFactory
 			.getLogger(ApplicationMemoryProbe.class);
 
-	private MBeanServerConnection mBeanServerConnection;
 	private MemoryMXBean mxBean;
-
-	public ApplicationMemoryProbe(MBeanServerConnection mBeanServerConnection) {
-
-		this.mBeanServerConnection = mBeanServerConnection;
-
+	
+	public void connect(MBeanServerConnection mBeanServerConnection) {
+	
 		try {
 
 			mxBean = ManagementFactory.newPlatformMXBeanProxy(
@@ -35,7 +26,7 @@ public class ApplicationMemoryProbe {
 					ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class);
 		} catch (IOException e) {
 
-			logger.debug("constructor", e);
+			logger.debug("connect", e);
 		}
 	}
 
@@ -55,6 +46,9 @@ public class ApplicationMemoryProbe {
 		memoryDTO.nonHeapMax = nonHeapMemoryUsage.getMax();
 		memoryDTO.nonHeapUsed = nonHeapMemoryUsage.getUsed();
 		
+		memoryDTO.timestamp = System.currentTimeMillis();
+		
 		return memoryDTO;
 	}
+	
 }
