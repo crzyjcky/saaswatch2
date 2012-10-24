@@ -1,0 +1,1 @@
+CREATE TABLE buffer(data_type VARCHAR(255), data CLOB);

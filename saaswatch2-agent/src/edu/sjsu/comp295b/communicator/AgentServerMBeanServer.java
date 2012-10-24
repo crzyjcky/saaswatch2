@@ -25,7 +25,7 @@ public class AgentServerMBeanServer {
 		
 		try {
 			
-			name = new ObjectName("saaswatch:type=AgentServerCommunicator");
+			name = new ObjectName("saaswatch2:type=AgentServerCommunicator");
 			AgentServer mbean = new AgentServer(agent);
 			mbs.registerMBean(mbean, name);
 		} catch (MalformedObjectNameException e) {

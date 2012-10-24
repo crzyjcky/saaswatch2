@@ -50,7 +50,7 @@ public class AgentLibraryClient implements NotificationListener {
 			
 			broadcastEvent(EVENT_CONNECTED);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+
 			logger.debug("connect", e);
 			broadcastEvent(EVENT_DISCONNECTED);
 		} 

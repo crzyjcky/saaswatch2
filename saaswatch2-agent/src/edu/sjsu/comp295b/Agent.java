@@ -24,12 +24,13 @@ import edu.sjsu.comp295b.config.IAgentConfigListener;
 import edu.sjsu.comp295b.dto.ConnectionDTO;
 import edu.sjsu.comp295b.dto.MemoryDTO;
 import edu.sjsu.comp295b.dto.OSDTO;
-import edu.sjsu.comp295b.helper.ClassInspector;
 import edu.sjsu.comp295b.probe.AgentMemoryProbe;
 import edu.sjsu.comp295b.probe.AgentOperatingSystemProbe;
 import edu.sjsu.comp295b.probe.ApplicationMemoryProbe;
 import edu.sjsu.comp295b.probe.ApplicationOperatingSystemProbe;
 import edu.sjsu.comp295b.probe.ConnectionProbe;
+import edu.sjsu.comp295b.util.Buffer;
+import edu.sjsu.comp295b.util.ClassInspector;
 
 public class Agent implements IAgentLibraryClientListener, IAgentConfigListener {
 
@@ -56,6 +57,12 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 	private AgentOSProbingTimerTask agentOSProbingTimerTask = new AgentOSProbingTimerTask();
 	private Timer connectionProbingTimer = new Timer(DAEMON_FLAG);
 	private ConnectionProbingTimerTask connectionProbingTimerTask = new ConnectionProbingTimerTask();
+	
+	private Timer agentServerDataUploadTimer = new Timer(DAEMON_FLAG);
+	private AgentServerDataUploadTimerTask agentServerDataUploadTimerTask = new AgentServerDataUploadTimerTask();
+	
+	private IAgentListener listener;
+	private Buffer buffer = new Buffer();
 
 	public Agent() throws IOException {
 
@@ -84,6 +91,8 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		startAgentMemoryProbingJobScheduling();
 		startAgentOperatingSystemProbingJobScheduling();
 		startConnectionProbingJobScheduling();
+		
+		startAgentServerDataUploadJobScheduling();
 	}
 	
 	public void saveConfig(Properties newConfig) {
@@ -128,6 +137,8 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 			MemoryDTO memoryDTO = applicationMemoryProbe.probe();
 			logger.debug("AppMemoryProbingTimerTask");
 			ClassInspector.inspect(memoryDTO);
+			
+			buffer.addData("appMemory", memoryDTO);
 		}
 	}
 
@@ -139,6 +150,8 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 			MemoryDTO memoryDTO = agentMemoryProbe.probe();
 			logger.debug("AgentMemoryProbingTimerTask");
 			ClassInspector.inspect(memoryDTO);
+			
+			buffer.addData("agentMemory", memoryDTO);
 		}
 	}
 
@@ -162,6 +175,8 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 			OSDTO osDTO = applicationOperatingSystemProbe.probe();
 			logger.debug("AppOSProbingTimerTask");
 			ClassInspector.inspect(osDTO);
+			
+			buffer.addData("appOS", osDTO);
 		}
 	}
 	
@@ -173,6 +188,8 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 			OSDTO osDTO = agentOperatingSystemProbe.probe();
 			logger.debug("AgentOSProbingTimerTask");
 			ClassInspector.inspect(osDTO);
+			
+			buffer.addData("agentOS", osDTO);
 		}
 	}
 	
@@ -187,9 +204,26 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 				
 				logger.debug("ConnectionProbingTimerTask");
 				ClassInspector.inspect(connectionDTO);
+				
+				buffer.addData("connection", connectionDTO);
 			}
 			
 		}
+	}
+	
+	private class AgentServerDataUploadTimerTask extends TimerTask {
+
+		@Override
+		public void run() {
+			logger.debug("AgentServerDataUploadTimerTask");
+			
+			List<String[]> dataList = buffer.retrieveAndClear();
+			
+			listener.onDataUpload(dataList);
+			
+			
+		}
+		
 	}
 
 	public void setAppMemoryProbingInterval(int interval) {
@@ -286,9 +320,6 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		stopJMXReconnectJobScheduling();
 		
 		startApplicationMemoryProbingJobScheduling(mBeanServerConnection);
-		//startApplicationOperatingSystemProbingJobScheduling(mBeanServerConnection);
-		//startAgentMemoryProbingJobScheduling();
-		//startAgentOperatingSystemProbingJobScheduling();
 	}
 
 	@Override
@@ -298,9 +329,6 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		startJMXReconnectJobScheduling();
 		
 		stopApplicationMemoryProbingJobScheduling();
-		//stopApplicationOperatingSystemProbingJobScheduling();
-		//stopAgentMemoryProbingJobScheduling();
-		//stopAgentOperatingSystemProbingJobScheduling();
 	}
 
 	private void startJMXReconnectJobScheduling() {
@@ -357,7 +385,23 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		connectionProbingTimerTask = new ConnectionProbingTimerTask();
 		
 		connectionProbingTimer.scheduleAtFixedRate(connectionProbingTimerTask, 0, agentConfig.getConnectionProbingInterval());
+	}
+	
+	private void startAgentServerDataUploadJobScheduling() {
 		
+		agentServerDataUploadTimer.cancel();
+		agentServerDataUploadTimer = new Timer(DAEMON_FLAG);
+		agentServerDataUploadTimerTask = new AgentServerDataUploadTimerTask();
+		
+		agentServerDataUploadTimer.scheduleAtFixedRate(agentServerDataUploadTimerTask, 0, agentConfig.getAgentServerDataUploadInterval());
+	}
+
+	public IAgentListener getListener() {
+		return listener;
+	}
+
+	public void setListener(IAgentListener listener) {
+		this.listener = listener;
 	}
 	
 }

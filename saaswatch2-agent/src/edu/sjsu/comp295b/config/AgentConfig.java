@@ -47,6 +47,9 @@ public class AgentConfig {
 	// rest
 	private boolean isAgentRESTEnabled;
 	
+	// agent server data upload
+	private int agentServerDataUploadInterval;
+	
 	public AgentConfig(IAgentConfigListener listener) throws IOException {
 		
 		this.listener = listener;
@@ -67,7 +70,7 @@ public class AgentConfig {
 		agentJMXServiceURL = agentProperties.getProperty(AGENT_PREFIX + "jmxServiceURL");
 		connectionProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "connectionProbingInterval"));
 		connectionURLs = Arrays.asList(agentProperties.getProperty(AGENT_PREFIX + "connectionURLs").split(","));
-		
+		agentServerDataUploadInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "agentServerDataUploadInterval"));
 		// TODO: REST
 		logger.debug("constructor");
 	}
@@ -303,6 +306,14 @@ public class AgentConfig {
 	public List<String> getConnectionURLs() {
 		
 		return new ArrayList<String>(connectionURLs);
+	}
+
+	public int getAgentServerDataUploadInterval() {
+		return agentServerDataUploadInterval;
+	}
+
+	public void setAgentServerDataUploadInterval(int agentServerDataUploadInterval) {
+		this.agentServerDataUploadInterval = agentServerDataUploadInterval;
 	}
 
 	/*

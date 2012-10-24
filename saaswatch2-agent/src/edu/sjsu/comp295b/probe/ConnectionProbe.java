@@ -51,7 +51,8 @@ public class ConnectionProbe {
 				logger.error("probe", e);
 			} catch (IOException e) {
 
-				logger.error("probe", e);
+				// consume this error as this mean isUp = false;
+				// logger.error("probe", e);
 			}
 			
 			connectionDTOs.add(connectionDTO);
