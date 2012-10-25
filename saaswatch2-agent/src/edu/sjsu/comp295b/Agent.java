@@ -6,13 +6,7 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-
-import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,8 +101,7 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 	 * @throws IOException
 	 * @throws SchedulerException
 	 */
-	public static void main(String[] args) throws IOException,
-			SchedulerException {
+	public static void main(String[] args) throws IOException {
 
 		logger.debug("main.start");
 		Agent agent = new Agent();
