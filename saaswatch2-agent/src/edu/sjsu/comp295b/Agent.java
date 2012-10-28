@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.management.MBeanServerConnection;
 import org.slf4j.Logger;
@@ -13,9 +15,11 @@ import org.slf4j.LoggerFactory;
 import edu.sjsu.comp295b.communicator.AgentLibraryClient;
 import edu.sjsu.comp295b.communicator.AgentServerMBeanServer;
 import edu.sjsu.comp295b.communicator.IAgentLibraryClientListener;
+import edu.sjsu.comp295b.communicator.rest.AgentRESTServer;
 import edu.sjsu.comp295b.config.AgentConfig;
 import edu.sjsu.comp295b.config.IAgentConfigListener;
 import edu.sjsu.comp295b.dto.ConnectionDTO;
+import edu.sjsu.comp295b.dto.DebugDTO;
 import edu.sjsu.comp295b.dto.MemoryDTO;
 import edu.sjsu.comp295b.dto.OSDTO;
 import edu.sjsu.comp295b.probe.AgentMemoryProbe;
@@ -57,7 +61,20 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 	
 	private IAgentListener listener;
 	private Buffer buffer = new Buffer();
+	
+	private static volatile BlockingQueue<DebugDTO> debugMessageQueue = new LinkedBlockingQueue<DebugDTO>();
 
+	private static Agent instance;
+	
+	public static synchronized Agent getInstance() throws IOException {
+		
+		if (instance == null) {
+			
+			instance = new Agent();
+		}
+		return instance;
+	}
+	
 	public Agent() throws IOException {
 
 		logger.debug("constructor.start");
@@ -65,7 +82,7 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		agentConfig = new AgentConfig(this);
 
 		agentLibraryClient = new AgentLibraryClient();
-		agentLibraryClient.addListener(this);
+		agentLibraryClient.setListener(this);
 		
 		AgentServerMBeanServer agentServerMBeanServer = new AgentServerMBeanServer(this);
 		logger.debug("constructor.end");
@@ -87,6 +104,21 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		startConnectionProbingJobScheduling();
 		
 		startAgentServerDataUploadJobScheduling();
+		
+		AgentRESTServer agentRESTServer = new AgentRESTServer();
+		try {
+			
+			agentRESTServer.start(agentConfig.getAgentRESTServerPort());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.debug("start", e);
+		}
+	}
+	
+	public String testContext() {
+		
+		return "testTest";
 	}
 	
 	public void saveConfig(Properties newConfig) {
@@ -395,6 +427,24 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 
 	public void setListener(IAgentListener listener) {
 		this.listener = listener;
+	}
+
+	@Override
+	public void onDebug(DebugDTO debugDTO) {
+		
+		try {
+			
+			// using producer-consumer pattern
+			debugMessageQueue.put(debugDTO);
+		} catch (InterruptedException e) {
+
+			logger.debug("onDebug", e);
+		}
+	}
+	
+	public BlockingQueue<DebugDTO> getDebugMessageQueue() {
+		
+		return debugMessageQueue;
 	}
 	
 }

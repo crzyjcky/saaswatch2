@@ -18,7 +18,7 @@ public class AgentConfig {
 	private final String AGENT_PROPERTIES_FILE = "agent.properties";
 	public static final String AGENT_PREFIX = "agent.";
 	public static final String LIBRARY_PREFIX = "library.";
-	private final int DEFAULT_AGENT_STATUS_PROBING_INTERVAL = 10; // agent status probing is not allowed to turn off. 
+	//private final int DEFAULT_AGENT_STATUS_PROBING_INTERVAL = 10; // agent status probing is not allowed to turn off. 
 	
 	private Properties agentProperties = new Properties();
 	private IAgentConfigListener listener;
@@ -27,8 +27,8 @@ public class AgentConfig {
 	// application probing
 	private int appMemoryProbingInterval;
 	private int appOSProbingInterval;
-	private int appResourceProbingInterval;
-	private int appConnectivityProbingInterval;
+	//private int appResourceProbingInterval;
+	//private int appConnectivityProbingInterval;
 	
 	// agent jmx
 	private String agentJMXServiceURL;
@@ -37,15 +37,16 @@ public class AgentConfig {
 	// agent probing
 	private int agentMemoryProbingInterval;
 	private int agentOSProbingInterval;
-	private int agentResourceProbingInterval;
-	private int agentConnectivityProbingInterval;
-	private int agentStatusProbingInterval;
+	//private int agentResourceProbingInterval;
+	//private int agentConnectivityProbingInterval;
+	//private int agentStatusProbingInterval;
 	
 	private int connectionProbingInterval;
 	private List<String> connectionURLs;
 	
 	// rest
 	private boolean isAgentRESTEnabled;
+	private int agentRESTServerPort;
 	
 	// agent server data upload
 	private int agentServerDataUploadInterval;
@@ -62,16 +63,17 @@ public class AgentConfig {
 		appOSProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "appOSProbingInterval"));
 		agentMemoryProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "agentMemoryProbingInterval"));
 		agentOSProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "agentOSProbingInterval"));
-		appResourceProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "appResourceProbingInterval"));
-		appConnectivityProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "appConnectivityProbingInterval"));
-		agentResourceProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "agentResourceProbingInterval"));
-		agentConnectivityProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "agentConnectivityProbingInterval"));
-		agentConnectivityProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "agentStatusProbingInterval"));
+		//appResourceProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "appResourceProbingInterval"));
+		//appConnectivityProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "appConnectivityProbingInterval"));
+		//agentResourceProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "agentResourceProbingInterval"));
+		//agentConnectivityProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "agentConnectivityProbingInterval"));
+		//agentConnectivityProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "agentStatusProbingInterval"));
 		agentJMXServiceURL = agentProperties.getProperty(AGENT_PREFIX + "jmxServiceURL");
 		connectionProbingInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "connectionProbingInterval"));
 		connectionURLs = Arrays.asList(agentProperties.getProperty(AGENT_PREFIX + "connectionURLs").split(","));
 		agentServerDataUploadInterval = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "agentServerDataUploadInterval"));
 		// TODO: REST
+		agentRESTServerPort = Integer.parseInt(agentProperties.getProperty(AGENT_PREFIX + "restServerPort"));
 		logger.debug("constructor");
 	}
 	
@@ -93,22 +95,27 @@ public class AgentConfig {
 		listener.onAgentSaveConfig(newConfig);
 	}
 
+	/*
 	public boolean isAppResourceProbingEnabled() {
 		
 		return appResourceProbingInterval > 0;
 	}
+	*/
 
+	/*
 	public boolean isAppConnectivityProbingEnabled() {
 		
 		return appConnectivityProbingInterval > 0;
 	}
-
+*/
+	/*
 	public int getAppResourceProbingInterval() {
 		
 		return appResourceProbingInterval;
 	}
+	*/
 
-
+	/*
 	public void setAppResourceProbingInterval(int appResourceProbingInterval) {
 		
 		this.appResourceProbingInterval = appResourceProbingInterval;
@@ -122,13 +129,14 @@ public class AgentConfig {
 			listener.onAppResourceProbingEnabledChanged(false);
 		}	
 	}
-
-
+	*/
+	/*
 	public int getAppConnectivityProbingInterval() {
 		
 		return appConnectivityProbingInterval;
 	}
-
+*/
+	/*
 	public void setAppConnectivityProbingInterval(int appConnectivityProbingInterval) {
 		
 		this.appConnectivityProbingInterval = appConnectivityProbingInterval;
@@ -142,7 +150,8 @@ public class AgentConfig {
 			listener.onAppConnectivityProbingEnabledChanged(false);
 		}
 	}
-
+*/
+	/*
 	public boolean isAgentResourceProbingEnabled() {
 		
 		return agentResourceProbingInterval > 0;
@@ -212,7 +221,7 @@ public class AgentConfig {
 			listener.onAgentStatusProbingIntervalChanged(DEFAULT_AGENT_STATUS_PROBING_INTERVAL);
 		}
 	}
-	
+	*/
 	public boolean isRESTEnabled() {
 		
 		return isAgentRESTEnabled;
@@ -314,6 +323,14 @@ public class AgentConfig {
 
 	public void setAgentServerDataUploadInterval(int agentServerDataUploadInterval) {
 		this.agentServerDataUploadInterval = agentServerDataUploadInterval;
+	}
+
+	public int getAgentRESTServerPort() {
+		return agentRESTServerPort;
+	}
+
+	public void setAgentRESTServerPort(int agentRESTServerPort) {
+		this.agentRESTServerPort = agentRESTServerPort;
 	}
 
 	/*

@@ -2,11 +2,11 @@ package edu.sjsu.comp295b.dto;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "connection")
-public class ConnectionDTO {
+@XmlRootElement(name = "debug")
+public class DebugDTO {
 
-	public String url;
-	public boolean isUp;
+	public String data;
+	public String className;
 	
 	public long timestamp;
 }

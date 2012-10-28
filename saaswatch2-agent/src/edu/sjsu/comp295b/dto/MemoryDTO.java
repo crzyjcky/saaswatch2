@@ -1,5 +1,8 @@
 package edu.sjsu.comp295b.dto;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "memory")
 public class MemoryDTO {
 
 	public long heapCommitted;
