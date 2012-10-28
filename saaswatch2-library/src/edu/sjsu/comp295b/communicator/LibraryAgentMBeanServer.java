@@ -21,7 +21,7 @@ public class LibraryAgentMBeanServer {
 	public LibraryAgentMBeanServer(Library library) throws InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException, MalformedObjectNameException, NullPointerException {
 		
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-		ObjectName name = new ObjectName("saaswatch:type=LibraryAgentCommunicator");
+		ObjectName name = new ObjectName("saaswatch2:type=LibraryAgentCommunicator");
 		LibraryAgent mbean = new LibraryAgent(library);
 		mbs.registerMBean(mbean, name);
 	}

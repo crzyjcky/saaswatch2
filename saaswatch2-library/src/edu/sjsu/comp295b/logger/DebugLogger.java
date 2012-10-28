@@ -4,22 +4,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.sjsu.comp295b.Library;
+import edu.sjsu.comp295b.dto.DebugDTO;
 
 public class DebugLogger {
 
 	private static final Logger logger = LoggerFactory.getLogger(DebugLogger.class);
 	private Library library;
-	private String classname;
+	private String className;
 	
-	public DebugLogger(Library library, String classname) {
+	public DebugLogger(Library library, String className) {
 		
 		this.library = library;
-		this.classname = classname;
+		this.className = className;
 	}
 	
 	public void debug(String debugString) {
 		
-		library.debug(System.currentTimeMillis() + "\t" + classname + " - " + debugString);
+		DebugDTO debugDTO = new DebugDTO();
+		debugDTO.timestamp = System.currentTimeMillis();
+		debugDTO.data = debugString;
+		debugDTO.className = className;
+		
+		library.debug(debugDTO);
 	}
 	
 }

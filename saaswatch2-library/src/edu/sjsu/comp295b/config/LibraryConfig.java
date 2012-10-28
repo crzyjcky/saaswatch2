@@ -38,6 +38,7 @@ public class LibraryConfig {
 		
 		logger.debug("config: " + isDebugEnabled);
 		
+		/*
 		if (libraryProperties.getProperty("library.keepAliveInterval") == null || "0".equals(libraryProperties.getProperty("library.keepAliveInterval"))) {
 			
 			// by default, set keepAliveInterval = 10;
@@ -46,6 +47,7 @@ public class LibraryConfig {
 			
 			keepAliveInterval = Integer.parseInt(libraryProperties.getProperty("library.keepAliveInterval"));
 		}
+		*/
 	}
 
 	public void saveConfig(Properties newConfig) {

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import edu.sjsu.comp295b.communicator.LibraryAgentMBeanServer;
 import edu.sjsu.comp295b.config.LibraryConfig;
 import edu.sjsu.comp295b.config.ILibraryConfigListener;
+import edu.sjsu.comp295b.dto.DebugDTO;
 import edu.sjsu.comp295b.job.KeepAliveJob;
 import edu.sjsu.comp295b.logger.DebugLogger;
 
@@ -81,13 +82,13 @@ public class Library implements ILibraryConfigListener {
 		if (instance == null) {
 
 			instance = new Library();
-			
+			/*
 			try {
 				instance.scheduleKeepAliveJob();
 			} catch (SchedulerException e) {
 
 				e.printStackTrace();
-			}
+			}*/
 		}
 
 		return instance;
@@ -105,11 +106,11 @@ public class Library implements ILibraryConfigListener {
 		libraryConfig.setKeepAliveInterval(keepAliveInterval);
 	}
 
-	public void debug(String debugString) {
+	public void debug(DebugDTO debugDTO) {
 
 		if (libraryConfig.isDebugEnabled()) {
-
-			broadcast("onDebug", debugString);
+			
+			broadcast("onDebug", debugDTO);
 		}
 	}
 
@@ -145,7 +146,7 @@ public class Library implements ILibraryConfigListener {
 		listeners.remove(listener);
 	}
 
-	public void broadcast(String eventname, String data) {
+	public void broadcast(String eventname, Object data) {
 
 		if ("onDebug".equals(eventname)) {
 
@@ -226,20 +227,34 @@ public class Library implements ILibraryConfigListener {
 			SchedulerException {
 
 		Library library = Library.getInstance();
-		library.scheduleKeepAliveJob();
+	
+		// remove onKeepAlive notification
+		// library.scheduleKeepAliveJob();
 
-		library.setKeepAliveInterval(2);
+		/*
 		try {
-			Thread.sleep(20000);
+			Thread.sleep(Long.MAX_VALUE);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		library.setKeepAliveInterval(10);
+*/
 
 		DebugLogger debugLogger = library.getDebugLogger(Library.class);
 		debugLogger.debug("hello world");
+		
+		int len = 100;
+		for (int i = 0; i < len; i++) {
+			
+			try {
+				Thread.sleep(2000);
+				
+				debugLogger.debug("hello world: " + i);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		System.out.println("Waiting forever...");
 		
