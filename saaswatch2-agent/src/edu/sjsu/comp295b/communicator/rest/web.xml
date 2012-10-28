@@ -6,11 +6,11 @@
 
    <context-param>
     <param-name>resteasy.resources</param-name>
-    <param-value>edu.sjsu.comp295b.communicator.rest.service.v0.DebugResource</param-value>
+    <param-value>edu.sjsu.comp295b.communicator.rest.service.v0.AgentResource</param-value>
    </context-param>
     <context-param>
       <param-name>javax.ws.rs.core.Application</param-name>
-      <param-value>edu.sjsu.comp295b.communicator.rest.service.DebugApplication</param-value>
+      <param-value>edu.sjsu.comp295b.communicator.rest.service.AgentApplication</param-value>
    </context-param>
 
    <!-- set this if you map the Resteasy servlet to something other than /*
@@ -27,14 +27,15 @@
       </param-value>
    </context-param>
 
-
+   <listener>
+      <listener-class>edu.sjsu.comp295b.communicator.rest.AgentContextListener</listener-class>
+   </listener>
+   
    <listener>
       <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
    </listener>
    
-   <listener>
-      <listener-class>edu.sjsu.comp295b.communicator.rest.AgentContextListener</listener-class>
-   </listener>
+
 <!-- 
   <servlet>     
     <servlet-name>Resteasy</servlet-name>

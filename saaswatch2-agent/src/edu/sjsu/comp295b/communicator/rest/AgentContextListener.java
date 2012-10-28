@@ -24,6 +24,8 @@ public class AgentContextListener implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 
+		
+		
 		try {
 			
 			agent = Agent.getInstance();
@@ -34,6 +36,8 @@ public class AgentContextListener implements ServletContextListener {
 		
 		ServletContext context = contextEvent.getServletContext();
 		context.setAttribute("agent", agent);
+		
+		logger.debug("contextInitialized agent: " + agent);
 	}
 
 }

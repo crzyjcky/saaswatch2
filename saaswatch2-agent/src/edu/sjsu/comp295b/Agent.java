@@ -1,6 +1,7 @@
 package edu.sjsu.comp295b;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
@@ -59,10 +60,16 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 	private Timer agentServerDataUploadTimer = new Timer(DAEMON_FLAG);
 	private AgentServerDataUploadTimerTask agentServerDataUploadTimerTask = new AgentServerDataUploadTimerTask();
 	
+	private List<ConnectionDTO> currentConnectionDTOs = new ArrayList<ConnectionDTO>();
+	private MemoryDTO currentApplicationMemoryDTO;
+	private OSDTO currentApplicationOSDTO;
+	private MemoryDTO currentAgentMemoryDTO;
+	private OSDTO currentAgentOSDTO;
+	
 	private IAgentListener listener;
 	private Buffer buffer = new Buffer();
 	
-	private static volatile BlockingQueue<DebugDTO> debugMessageQueue = new LinkedBlockingQueue<DebugDTO>();
+	private BlockingQueue<DebugDTO> debugMessageQueue = new LinkedBlockingQueue<DebugDTO>();
 
 	private static Agent instance;
 	
@@ -75,7 +82,7 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		return instance;
 	}
 	
-	public Agent() throws IOException {
+	private Agent() throws IOException {
 
 		logger.debug("constructor.start");
 
@@ -136,7 +143,7 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 	public static void main(String[] args) throws IOException {
 
 		logger.debug("main.start");
-		Agent agent = new Agent();
+		Agent agent = Agent.getInstance();
 		logger.debug("main.agent start");
 		agent.start();
 
@@ -160,6 +167,8 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		public void run() {
 
 			MemoryDTO memoryDTO = applicationMemoryProbe.probe();
+			currentApplicationMemoryDTO = memoryDTO;
+			
 			logger.debug("AppMemoryProbingTimerTask");
 			ClassInspector.inspect(memoryDTO);
 			
@@ -173,6 +182,8 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		public void run() {
 
 			MemoryDTO memoryDTO = agentMemoryProbe.probe();
+			currentAgentMemoryDTO = memoryDTO;
+			
 			logger.debug("AgentMemoryProbingTimerTask");
 			ClassInspector.inspect(memoryDTO);
 			
@@ -198,6 +209,10 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		public void run() {
 
 			OSDTO osDTO = applicationOperatingSystemProbe.probe();
+			currentApplicationOSDTO = osDTO;
+			logger.debug("currentApplicationOSDTO: " + currentApplicationOSDTO);
+			
+			
 			logger.debug("AppOSProbingTimerTask");
 			ClassInspector.inspect(osDTO);
 			
@@ -211,10 +226,28 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		public void run() {
 
 			OSDTO osDTO = agentOperatingSystemProbe.probe();
+			currentAgentOSDTO = osDTO;
+			
 			logger.debug("AgentOSProbingTimerTask");
 			ClassInspector.inspect(osDTO);
 			
 			buffer.addData("agentOS", osDTO);
+		}
+	}
+	
+	
+	private class ApplicationOSProbingTimerTask extends TimerTask {
+
+		@Override
+		public void run() {
+
+			OSDTO osDTO = applicationOperatingSystemProbe.probe();
+			currentApplicationOSDTO = osDTO;
+			
+			logger.debug("ApplicationOSProbingTimerTask");
+			ClassInspector.inspect(osDTO);
+			
+			buffer.addData("applicationOS", osDTO);
 		}
 	}
 	
@@ -227,6 +260,7 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 			
 			for (ConnectionDTO connectionDTO : connectionDTOs) {
 				
+				currentConnectionDTOs = connectionDTOs;
 				logger.debug("ConnectionProbingTimerTask");
 				ClassInspector.inspect(connectionDTO);
 				
@@ -345,6 +379,7 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		stopJMXReconnectJobScheduling();
 		
 		startApplicationMemoryProbingJobScheduling(mBeanServerConnection);
+		startApplicationOSProbingJobScheduling(mBeanServerConnection);
 	}
 
 	@Override
@@ -354,6 +389,7 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		startJMXReconnectJobScheduling();
 		
 		stopApplicationMemoryProbingJobScheduling();
+		stopApplicationOSProbingJobScheduling();
 	}
 
 	private void startJMXReconnectJobScheduling() {
@@ -383,6 +419,22 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 	private void stopApplicationMemoryProbingJobScheduling() {
 		
 		appMemoryProbingTimer.cancel();
+	}
+	
+	private void startApplicationOSProbingJobScheduling(MBeanServerConnection mBeanServerConnection) {
+		
+		appOSProbingTimer.cancel();
+		appOSProbingTimer = new Timer(DAEMON_FLAG);
+		appOSProbingTimerTask = new AppOSProbingTimerTask();
+		
+		applicationOperatingSystemProbe.connect(mBeanServerConnection);
+		
+		appOSProbingTimer.scheduleAtFixedRate(appOSProbingTimerTask, 0, agentConfig.getAppOSProbingInterval());
+	}
+	
+	private void stopApplicationOSProbingJobScheduling() {
+		
+		appOSProbingTimer.cancel();
 	}
 	
 	private void startAgentMemoryProbingJobScheduling() {
@@ -446,5 +498,27 @@ public class Agent implements IAgentLibraryClientListener, IAgentConfigListener 
 		
 		return debugMessageQueue;
 	}
+
+	public MemoryDTO getCurrentApplicationMemoryDTO() {
+		return currentApplicationMemoryDTO;
+	}
+
+	public OSDTO getCurrentApplicationOSDTO() {
+		return currentApplicationOSDTO;
+	}
+
+	public MemoryDTO getCurrentAgentMemoryDTO() {
+		return currentAgentMemoryDTO;
+	}
+
+	public OSDTO getCurrentAgentOSDTO() {
+		return currentAgentOSDTO;
+	}
+
+	public List<ConnectionDTO> getCurrentConnectionDTOs() {
+		
+		return new ArrayList(currentConnectionDTOs);
+	}
+
 	
 }
